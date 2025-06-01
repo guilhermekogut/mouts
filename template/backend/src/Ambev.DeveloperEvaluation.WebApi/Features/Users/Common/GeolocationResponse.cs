@@ -1,4 +1,4 @@
-namespace Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
+namespace Ambev.DeveloperEvaluation.WebApi.Features.Users.Common;
 
 public class GeolocationResponse
 {

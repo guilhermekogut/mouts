@@ -1,5 +1,4 @@
 using AutoMapper;
-using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
 
@@ -13,7 +12,10 @@ public class CreateUserProfile : Profile
     /// </summary>
     public CreateUserProfile()
     {
-        CreateMap<CreateUserRequest, CreateUserCommand>();
-        CreateMap<CreateUserResult, CreateUserResponse>();
+        CreateMap<CreateUserRequest, CreateUserResponse>()
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address));
     }
 }

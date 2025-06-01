@@ -1,16 +1,16 @@
-﻿using Ambev.DeveloperEvaluation.Application.Users.GetUser;
+﻿using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.Common;
-using Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
+using Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
 
 using AutoMapper;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Mappings;
 
-public class GetUserResultProfile : Profile
+public class CreateUserResultProfile : Profile
 {
-    public GetUserResultProfile()
+    public CreateUserResultProfile()
     {
-        CreateMap<GetUserResult, GetUserResponse>()
+        CreateMap<CreateUserResult, CreateUserResponse>()
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new NameResponse
