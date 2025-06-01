@@ -1,5 +1,6 @@
-using AutoMapper;
 using Ambev.DeveloperEvaluation.Domain.Entities;
+
+using AutoMapper;
 
 namespace Ambev.DeveloperEvaluation.Application.Users.GetUser;
 
@@ -13,6 +14,14 @@ public class GetUserProfile : Profile
     /// </summary>
     public GetUserProfile()
     {
-        CreateMap<User, GetUserResult>();
+        CreateMap<User, GetUserResult>().ForMember(dest => dest.Name, opt => opt.MapFrom(src => new NameResult(src.Name.Firstname, src.Name.Lastname)))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => new AddressResult(
+                src.Address.City,
+                src.Address.Street,
+                src.Address.Number,
+                src.Address.Zipcode,
+                new GeolocationResult(src.Address.Geolocation.Lat, src.Address.Geolocation.Long)
+            )));
     }
 }
+
