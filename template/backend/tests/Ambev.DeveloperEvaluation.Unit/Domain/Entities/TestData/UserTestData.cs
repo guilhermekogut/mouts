@@ -1,5 +1,9 @@
+using System.Globalization;
+
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Enums;
+using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+
 using Bogus;
 
 namespace Ambev.DeveloperEvaluation.Unit.Domain.Entities.TestData;
@@ -20,14 +24,34 @@ public static class UserTestData
     /// - Phone (Brazilian format)
     /// - Status (Active or Suspended)
     /// - Role (Customer or Admin)
+    /// - Name (with first and last names)
+    /// - Address (with city, street, number, zipcode, and geolocation)
     /// </summary>
-    private static readonly Faker<User> UserFaker = new Faker<User>()
+    private static readonly Faker<User> UserFaker = new Faker<User>("pt_BR")
         .RuleFor(u => u.Username, f => f.Internet.UserName())
         .RuleFor(u => u.Password, f => $"Test@{f.Random.Number(100, 999)}")
         .RuleFor(u => u.Email, f => f.Internet.Email())
         .RuleFor(u => u.Phone, f => $"+55{f.Random.Number(11, 99)}{f.Random.Number(100000000, 999999999)}")
         .RuleFor(u => u.Status, f => f.PickRandom(UserStatus.Active, UserStatus.Suspended))
-        .RuleFor(u => u.Role, f => f.PickRandom(UserRole.Customer, UserRole.Admin));
+        .RuleFor(u => u.Role, f => f.PickRandom(UserRole.Customer, UserRole.Admin))
+        .RuleFor(u => u.Name, f => new Name
+        {
+            Firstname = f.Name.FirstName(),
+            Lastname = f.Name.LastName()
+        })
+        .RuleFor(u => u.Address, f => new Address
+        {
+            City = f.Address.City(),
+            Street = f.Address.StreetName(),
+            Number = f.Random.Number(1, 9999),
+            Zipcode = f.Address.ZipCode(),
+            Geolocation = new Geolocation
+            {
+                Lat = f.Address.Latitude().ToString("F6", CultureInfo.InvariantCulture),
+                Long = f.Address.Longitude().ToString("F6", CultureInfo.InvariantCulture)
+            }
+        });
+
 
     /// <summary>
     /// Generates a valid User entity with randomized data.
@@ -84,6 +108,19 @@ public static class UserTestData
     }
 
     /// <summary>
+    /// Generates a valid Brazilian zipcode.
+    /// The generated zipcode will:
+    /// - Have 8 digits for the zipcode with hyphen
+    /// - Follow the format: xxxxx-xxx
+    /// </summary>
+    /// <returns>A valid Brazilian zipcode.</returns>
+    public static string GenerateValidZipcode()
+    {
+        var faker = new Faker("pt_BR");
+        return faker.Address.ZipCode();
+    }
+
+    /// <summary>
     /// Generates a valid username.
     /// The generated username will:
     /// - Be between 3 and 50 characters
@@ -136,6 +173,20 @@ public static class UserTestData
     public static string GenerateInvalidPhone()
     {
         return new Faker().Random.AlphaNumeric(5);
+    }
+
+
+    /// <summary>
+    /// Generates an invalid zipcode for testing negative scenarios.
+    /// The generated zipcode will:
+    /// - Not follow the Brazilian zipcode format
+    /// - Not have the correct length
+    /// This is useful for testing zipcode validation error cases.
+    /// </summary>
+    /// <returns>An invalid zipcode.</returns>
+    public static string GenerateInvalidZipcode()
+    {
+        return new Faker().Random.AlphaNumeric(9);
     }
 
     /// <summary>

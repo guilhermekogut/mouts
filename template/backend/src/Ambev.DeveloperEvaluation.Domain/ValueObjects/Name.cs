@@ -1,6 +1,13 @@
 ﻿namespace Ambev.DeveloperEvaluation.Domain.ValueObjects;
 public class Name
 {
+    public Name() { }
+
+    public Name(string firstname, string lastname)
+    {
+        Firstname = firstname;
+        Lastname = lastname;
+    }
     /// <summary>
     /// Gets the firstname
     /// </summary>

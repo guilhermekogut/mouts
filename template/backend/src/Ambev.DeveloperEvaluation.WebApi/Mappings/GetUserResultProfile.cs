@@ -10,6 +10,8 @@ public class GetUserResultProfile : Profile
     public GetUserResultProfile()
     {
         CreateMap<GetUserResult, GetUserResponse>()
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new NameResponse
             {
                 Firstname = src.Name.Firstname,
