@@ -18,7 +18,8 @@ public class BaseController : ControllerBase
     {
 
         if (data?.GetType().IsGenericType == true &&
-            data.GetType().GetGenericTypeDefinition() == typeof(ApiResponseWithData<>))
+            (data.GetType().GetGenericTypeDefinition() == typeof(ApiResponseWithData<>) ||
+            data.GetType().GetGenericTypeDefinition() == typeof(PaginatedResponse<>)))
         {
             return base.Ok(data);
         }

@@ -46,4 +46,10 @@ public interface IUserRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if the user was deleted, false if not found</returns>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists all users in the repository for query purposes
+    /// </summary>
+    IQueryable<User> Query();
+
 }

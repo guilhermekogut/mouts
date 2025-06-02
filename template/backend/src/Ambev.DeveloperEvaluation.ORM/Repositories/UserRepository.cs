@@ -86,4 +86,18 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    /// <summary>
+    /// Retrieves a list of users for query.
+    /// </summary>
+    /// <returns>IQueryable<User> for paged query purposes</returns>
+    public IQueryable<User> Query()
+    {
+        return _context.Users
+            .Include(u => u.Name)
+            .Include(u => u.Address)
+            .ThenInclude(a => a.Geolocation)
+            .AsQueryable();
+
+    }
 }

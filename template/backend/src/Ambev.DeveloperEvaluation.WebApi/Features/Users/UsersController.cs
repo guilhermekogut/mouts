@@ -1,11 +1,13 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
 using Ambev.DeveloperEvaluation.Application.Users.DeleteUser;
 using Ambev.DeveloperEvaluation.Application.Users.GetUser;
+using Ambev.DeveloperEvaluation.Application.Users.ListUsers;
 using Ambev.DeveloperEvaluation.Application.Users.UpdateUser;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.DeleteUser;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.GetUser;
+using Ambev.DeveloperEvaluation.WebApi.Features.Users.ListUsers;
 using Ambev.DeveloperEvaluation.WebApi.Features.Users.UpdateUser;
 
 using AutoMapper;
@@ -171,6 +173,35 @@ public class UsersController : BaseController
             Success = true,
             Message = "User update successfully",
             Data = _mapper.Map<UpdateUserResponse>(response)
+        });
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of users with optional filtering and ordering.
+    /// </summary>
+    /// <param name="request">Query parameters for pagination, ordering, and filtering</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Paginated list of users</returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResponse<ListUsersResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListUsers(
+        [FromQuery] ListUsersRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = _mapper.Map<ListUsersQueryCommand>(request);
+
+        var result = await _mediator.Send(query, cancellationToken);
+
+        var response = _mapper.Map<ListUsersResponse>(result);
+
+        return Ok(new PaginatedResponse<ListUsersItemResponse>
+        {
+            Data = response.Data,
+            TotalCount = response.TotalItems,
+            CurrentPage = response.CurrentPage,
+            TotalPages = response.TotalPages,
+            Success = true,
+            Message = "Users listed successfully"
         });
     }
 }
