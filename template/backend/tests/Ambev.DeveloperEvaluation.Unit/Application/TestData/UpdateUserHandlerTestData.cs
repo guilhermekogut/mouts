@@ -1,7 +1,7 @@
 using System.Globalization;
 
 using Ambev.DeveloperEvaluation.Application.Users.Common;
-using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
+using Ambev.DeveloperEvaluation.Application.Users.UpdateUser;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 
 using Bogus;
@@ -13,7 +13,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain;
 /// This class centralizes all test data generation to ensure consistency
 /// across test cases and provide both valid and invalid data scenarios.
 /// </summary>
-public static class CreateUserHandlerTestData
+public static class UpdateUserHandlerTestData
 {
     /// <summary>
     /// Configures the Faker to generate valid User entities.
@@ -27,8 +27,7 @@ public static class CreateUserHandlerTestData
     /// - Name (with first and last names)
     /// - Address (with city, street, number, zipcode, and geolocation)
     /// </summary>
-    private static readonly Faker<CreateUserCommand> createUserHandlerFaker = new Faker<CreateUserCommand>("pt_BR")
-        .RuleFor(u => u.Username, f => f.Internet.UserName())
+    private static readonly Faker<UpdateUserCommand> updateUserHandlerFaker = new Faker<UpdateUserCommand>("pt_BR")
         .RuleFor(u => u.Password, f => $"Test@{f.Random.Number(100, 999)}")
         .RuleFor(u => u.Email, f => f.Internet.Email())
         .RuleFor(u => u.Phone, f => $"+55{f.Random.Number(11, 99)}{f.Random.Number(100000000, 999999999)}")
@@ -58,8 +57,8 @@ public static class CreateUserHandlerTestData
     /// that meet the system's validation requirements.
     /// </summary>
     /// <returns>A valid User entity with randomly generated data.</returns>
-    public static CreateUserCommand GenerateValidCommand()
+    public static UpdateUserCommand GenerateValidCommand()
     {
-        return createUserHandlerFaker.Generate();
+        return updateUserHandlerFaker.Generate();
     }
 }

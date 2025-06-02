@@ -1,4 +1,4 @@
-﻿namespace Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
+﻿namespace Ambev.DeveloperEvaluation.WebApi.Features.Users.Common;
 
 /// <summary>
 /// Represents the geolocation details of an address.

@@ -3,9 +3,13 @@ using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Unit.Domain;
+
 using AutoMapper;
+
 using FluentAssertions;
+
 using NSubstitute;
+
 using Xunit;
 
 namespace Ambev.DeveloperEvaluation.Unit.Application;
@@ -48,7 +52,9 @@ public class CreateUserHandlerTests
             Email = command.Email,
             Phone = command.Phone,
             Status = command.Status,
-            Role = command.Role
+            Role = command.Role,
+            Name = new DeveloperEvaluation.Domain.ValueObjects.Name("John", "Doe"),
+            Address = new DeveloperEvaluation.Domain.ValueObjects.Address("City", "Street", 123, "00000-000", new DeveloperEvaluation.Domain.ValueObjects.Geolocation("1.23", "4.56")),
         };
 
         var result = new CreateUserResult

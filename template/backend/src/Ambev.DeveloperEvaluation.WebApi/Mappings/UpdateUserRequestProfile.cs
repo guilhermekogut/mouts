@@ -1,16 +1,16 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Users.Common;
-using Ambev.DeveloperEvaluation.Application.Users.CreateUser;
-using Ambev.DeveloperEvaluation.WebApi.Features.Users.CreateUser;
+using Ambev.DeveloperEvaluation.Application.Users.UpdateUser;
+using Ambev.DeveloperEvaluation.WebApi.Features.Users.UpdateUser;
 
 using AutoMapper;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Mappings;
 
-public class CreateUserRequestProfile : Profile
+public class UpdateUserRequestProfile : Profile
 {
-    public CreateUserRequestProfile()
+    public UpdateUserRequestProfile()
     {
-        CreateMap<CreateUserRequest, CreateUserCommand>()
+        CreateMap<UpdateUserRequest, UpdateUserCommand>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new NameResult(src.Name.Firstname, src.Name.Lastname)))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => new AddressResult(
                 src.Address.City,
@@ -18,6 +18,6 @@ public class CreateUserRequestProfile : Profile
                 src.Address.Number,
                 src.Address.Zipcode,
                 new GeolocationResult(src.Address.Geolocation.Lat, src.Address.Geolocation.Long)
-            ))); ;
+            )));
     }
 }

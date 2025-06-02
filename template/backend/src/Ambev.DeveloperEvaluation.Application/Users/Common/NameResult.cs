@@ -1,4 +1,4 @@
-namespace Ambev.DeveloperEvaluation.Application.Users.CreateUser;
+namespace Ambev.DeveloperEvaluation.Application.Users.Common;
 
 public class NameResult
 {

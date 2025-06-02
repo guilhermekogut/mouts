@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvaluation.Application.Users.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 
 namespace Ambev.DeveloperEvaluation.Application.Users.GetUser;
