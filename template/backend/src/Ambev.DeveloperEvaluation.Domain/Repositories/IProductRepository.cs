@@ -49,7 +49,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories
         /// </summary>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>List of category names</returns>
-        Task<IReadOnlyList<string>> GetCategoriesAsync(CancellationToken cancellationToken = default);
+        Task<IEnumerable<string>> GetCategoriesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves products in a specific category

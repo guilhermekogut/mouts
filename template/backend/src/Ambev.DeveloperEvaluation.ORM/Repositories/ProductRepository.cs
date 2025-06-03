@@ -66,12 +66,11 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<IReadOnlyList<string>> GetCategoriesAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<string>> GetCategoriesAsync(CancellationToken cancellationToken = default)
         {
             return await _context.Set<Product>()
                 .Select(p => p.Category)
                 .Distinct()
-                .OrderBy(c => c)
                 .ToListAsync(cancellationToken);
         }
 
@@ -80,7 +79,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
         {
             return _context.Set<Product>()
                 .Include(p => p.Rating)
-                .Where(p => p.Category == category);
+                .Where(p => p.Category.ToLower() == category.ToLower());
         }
     }
 }
