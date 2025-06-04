@@ -3,6 +3,7 @@
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 using Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 using Ambev.DeveloperEvaluation.WebApi.Common;
+using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CancelSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CreateSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.UpdateSale;
 
@@ -125,6 +126,67 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sale
                 {
                     Success = true,
                     Message = "Sale item cancelled successfully",
+                    Data = response
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ApiResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ApiResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("{saleId}/cancel")]
+        [ProducesResponseType(typeof(ApiResponseWithData<CancelSaleResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> CancelSale([FromRoute] Guid saleId, CancellationToken cancellationToken)
+        {
+            var request = new CancelSaleRequest
+            {
+                SaleId = saleId
+            };
+
+            var validator = new CancelSaleRequestValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var authenticatedUserId))
+            {
+                return Unauthorized(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Authenticated user not found."
+                });
+            }
+
+            var command = _mapper.Map<Ambev.DeveloperEvaluation.Application.Sales.CancelSale.CancelSaleCommand>(request);
+            command.AuthenticatedUserId = authenticatedUserId;
+
+            try
+            {
+                var result = await _mediator.Send(command, cancellationToken);
+                var response = _mapper.Map<CancelSaleResponse>(result);
+
+                return Ok(new ApiResponseWithData<CancelSaleResponse>
+                {
+                    Success = true,
+                    Message = "Sale cancelled successfully",
                     Data = response
                 });
             }
