@@ -122,7 +122,7 @@ public class Cart : BaseEntity
     /// Validates all business rules for the cart and its items.
     /// Throws exception if any rule is violated.
     /// </summary>
-    public void ValidateBusinessRules()
+    public void Validate()
     {
         var quantitySpec = new CartProductQuantitySpecification();
         if (!quantitySpec.IsSatisfiedBy(this))

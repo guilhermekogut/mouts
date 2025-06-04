@@ -92,6 +92,6 @@ public class CartTests
         var cart = CartTestData.GenerateCartWithInvalidProduct();
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => cart.ValidateBusinessRules());
+        Assert.Throws<InvalidOperationException>(() => cart.Validate());
     }
 }
