@@ -46,8 +46,11 @@ namespace Ambev.DeveloperEvaluation.Application.Carts.CreateCart
                     throw new InvalidOperationException($"It is not allowed to sell more than 20 items of product {item.ProductId}.");
             }
 
+
             // Maps the command to the Cart entity
             var cart = _mapper.Map<Cart>(request);
+
+            cart.ValidateBusinessRules();
 
             // Persistence
             await _cartRepository.AddAsync(cart, cancellationToken);

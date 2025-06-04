@@ -110,7 +110,7 @@ public class CreateCartHandlerTests
 
         _cartRepository.GetByUserIdAsync(command.UserId, Arg.Any<CancellationToken>()).Returns((Cart?)null);
 
-        // Simula apenas o primeiro produto como inexistente
+        // Simulates only the first product as non-existent
         var existenceItems = command.Products
             .Select((p, idx) => new ProductExistenceItem(p.ProductId, idx != 0))
             .ToList();
@@ -123,5 +123,33 @@ public class CreateCartHandlerTests
         // Then
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage($"The following product IDs do not exist: {invalidProductId}");
+    }
+
+    [Fact(DisplayName = "Given duplicate products When creating cart Then throws invalid operation exception")]
+    public async Task Handle_DuplicateProducts_ThrowsInvalidOperationException()
+    {
+        // Given
+        var command = CreateCartHandlerTestData.GenerateCommandWithDuplicateProducts();
+
+        _cartRepository.GetByUserIdAsync(command.UserId, Arg.Any<CancellationToken>()).Returns((Cart?)null);
+
+        var existenceItems = command.Products
+            .Select(p => new ProductExistenceItem(p.ProductId, true))
+            .ToList();
+        _productRepository.CheckExistenceAsync(
+            Arg.Any<IEnumerable<Guid>>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new ProductExistenceResult(existenceItems));
+
+        // Ensure the mapper returns a valid Cart
+        var cart = CreateCartHandlerTestData.GenerateCartFromCommand(command);
+        _mapper.Map<Cart>(command).Returns(cart);
+
+        // When
+        var act = () => _handler.Handle(command, CancellationToken.None);
+
+        // Then
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Duplicate products*");
     }
 }

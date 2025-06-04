@@ -61,4 +61,29 @@ public static class CreateCartHandlerTestData
             }).ToList()
         };
     }
+
+
+    /// <summary>
+    /// Generates a command with duplicate products (same ProductId).
+    /// </summary>
+    public static CreateCartCommand GenerateCommandWithDuplicateProducts()
+    {
+        var command = GenerateValidCommand();
+        if (command.Products.Count == 0)
+        {
+            command.Products.Add(new CartProductItemResult
+            {
+                ProductId = Guid.NewGuid(),
+                Quantity = 1
+            });
+        }
+        // Duplica o primeiro produto
+        var duplicate = new CartProductItemResult
+        {
+            ProductId = command.Products[0].ProductId,
+            Quantity = 2
+        };
+        command.Products.Add(duplicate);
+        return command;
+    }
 }
