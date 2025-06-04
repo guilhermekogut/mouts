@@ -22,12 +22,16 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping
             builder.Property(c => c.Date)
                 .IsRequired();
 
-            // Relacionamento 1:N com CartProduct
             builder.HasMany(c => c.Products)
                 .WithOne()
                 .HasForeignKey("CartId")
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

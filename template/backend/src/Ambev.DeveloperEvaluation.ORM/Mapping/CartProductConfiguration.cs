@@ -27,6 +27,11 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping
                 .IsRequired();
 
             builder.HasIndex("CartId");
+
+            builder.HasOne(cp => cp.Product)
+               .WithMany()
+               .HasForeignKey(cp => cp.ProductId)
+               .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

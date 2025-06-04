@@ -11,7 +11,7 @@ public class Cart : BaseEntity
     public Guid UserId { get; set; }
     public DateTime Date { get; set; }
     public List<CartProduct> Products { get; set; } = new();
-
+    public User? User { get; set; }
     public Cart()
     {
         Date = DateTime.UtcNow;

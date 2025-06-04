@@ -42,6 +42,14 @@ public class CreateCartHandlerTests
         _mapper.Map<CreateCartResult>(cart).Returns(result);
         _cartRepository.AddAsync(cart, Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
+        var existenceItems = command.Products
+        .Select(p => new ProductExistenceItem(p.ProductId, true))
+        .ToList();
+        _productRepository.CheckExistenceAsync(
+            Arg.Any<IEnumerable<Guid>>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new ProductExistenceResult(existenceItems));
+
         // When
         var createCartResult = await _handler.Handle(command, CancellationToken.None);
 
@@ -76,6 +84,14 @@ public class CreateCartHandlerTests
         var command = CreateCartHandlerTestData.GenerateCommandWithInvalidQuantity();
 
         _cartRepository.GetByUserIdAsync(command.UserId, Arg.Any<CancellationToken>()).Returns((Cart?)null);
+
+        var existenceItems = command.Products
+        .Select(p => new ProductExistenceItem(p.ProductId, true))
+        .ToList();
+        _productRepository.CheckExistenceAsync(
+            Arg.Any<IEnumerable<Guid>>(),
+            Arg.Any<CancellationToken>())
+            .Returns(new ProductExistenceResult(existenceItems));
 
         // When
         var act = () => _handler.Handle(command, CancellationToken.None);
