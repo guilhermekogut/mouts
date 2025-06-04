@@ -14,7 +14,6 @@ using AutoMapper;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Users;
@@ -23,7 +22,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Users;
 /// Controller for managing user operations
 /// </summary>
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("api/[controller]")]
 public class UsersController : BaseController
 {
@@ -132,19 +131,31 @@ public class UsersController : BaseController
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-
-        var command = _mapper.Map<DeleteUserCommand>(request.Id);
-        await _mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponseWithData<GetUserResponse>
+        try
         {
-            Success = true,
-            Message = "User deleted successfully",
-            Data = new GetUserResponse
+            var command = _mapper.Map<DeleteUserCommand>(request.Id);
+            await _mediator.Send(command, cancellationToken);
+
+            return Ok(new ApiResponseWithData<GetUserResponse>
             {
-                Id = id
-            }
-        });
+                Success = true,
+                Message = "User deleted successfully",
+                Data = new GetUserResponse
+                {
+                    Id = id
+                }
+            });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = ex.Message
+            });
+        }
+
+
     }
 
 
