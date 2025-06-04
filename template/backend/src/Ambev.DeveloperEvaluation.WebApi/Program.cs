@@ -9,6 +9,8 @@ using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 
+using FluentValidation;
+
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
@@ -82,9 +84,9 @@ public class Program
                 )
             );
 
-
-
             builder.RegisterDependencies();
+
+            builder.Services.AddValidatorsFromAssemblyContaining<ApplicationLayer>();
 
             builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(ApplicationLayer).Assembly);
 
