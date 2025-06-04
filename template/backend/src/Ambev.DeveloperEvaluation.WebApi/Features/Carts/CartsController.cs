@@ -1,9 +1,11 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Carts.CreateCart;
 using Ambev.DeveloperEvaluation.Application.Carts.DeleteCart;
+using Ambev.DeveloperEvaluation.Application.Carts.GetCart;
 using Ambev.DeveloperEvaluation.Application.Carts.UpdateCart;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.CreateCart;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.DeleteCart;
+using Ambev.DeveloperEvaluation.WebApi.Features.Carts.GetCart;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.UpdateCart;
 
 using AutoMapper;
@@ -120,5 +122,44 @@ public class CartsController : ControllerBase
             Message = "Cart deleted successfully",
             Data = _mapper.Map<DeleteCartResponse>(result)
         });
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ApiResponseWithData<GetCartResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCart([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var request = new GetCartRequest { Id = id };
+        var validator = new GetCartRequestValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        var command = _mapper.Map<GetCartCommand>(request.Id);
+        try
+        {
+            var response = await _mediator.Send(command, cancellationToken);
+            return Ok(new ApiResponseWithData<GetCartResponse>
+            {
+                Success = true,
+                Message = "Cart retrieved successfully",
+                Data = _mapper.Map<GetCartResponse>(response)
+            });
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = e.Message,
+                Errors = []
+            });
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }
