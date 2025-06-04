@@ -1,5 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
+using Ambev.DeveloperEvaluation.Domain.Repositories.Results;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -80,6 +81,23 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories
             return _context.Set<Product>()
                 .Include(p => p.Rating)
                 .Where(p => p.Category.ToLower() == category.ToLower());
+        }
+
+        /// <inheritdoc />
+        public async Task<ProductExistenceResult> CheckExistenceAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default)
+        {
+            var ids = productIds.Distinct().ToList();
+
+            var existingIds = await _context.Set<Product>()
+                .Where(p => ids.Contains(p.Id))
+                .Select(p => p.Id)
+                .ToListAsync(cancellationToken);
+
+            var items = ids
+                .Select(id => new ProductExistenceItem(id, existingIds.Contains(id)))
+                .ToList();
+
+            return new ProductExistenceResult(items);
         }
     }
 }
