@@ -1,4 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Domain.Specifications;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities;
 
@@ -123,13 +124,12 @@ public class Cart : BaseEntity
     /// </summary>
     public void ValidateBusinessRules()
     {
-        foreach (var item in Products)
-        {
-            if (item.Quantity < 1)
-                throw new InvalidOperationException($"The quantity of product {item.ProductId} must be greater than zero.");
+        var quantitySpec = new CartProductQuantitySpecification();
+        if (!quantitySpec.IsSatisfiedBy(this))
+            throw new InvalidOperationException("Each product quantity must be between 1 and 20.");
 
-            if (item.Quantity > 20)
-                throw new InvalidOperationException($"It is not allowed to sell more than 20 items of product {item.ProductId}.");
-        }
+        var duplicateSpec = new CartNoDuplicateProductsSpecification();
+        if (!duplicateSpec.IsSatisfiedBy(this))
+            throw new InvalidOperationException("Duplicate products are not allowed in the cart.");
     }
 }

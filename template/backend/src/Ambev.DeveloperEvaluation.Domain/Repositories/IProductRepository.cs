@@ -1,4 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
+using Ambev.DeveloperEvaluation.Domain.Repositories.Results;
 
 namespace Ambev.DeveloperEvaluation.Domain.Repositories
 {
@@ -58,5 +59,13 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Queryable of products in the category</returns>
         IQueryable<Product> QueryByCategory(string category);
+
+        /// <summary>
+        /// Checks existence of multiple products by their IDs.
+        /// </summary>
+        /// <param name="productIds">Array of product IDs to check.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Strong type result with existence info for each product and overall status.</returns>
+        Task<ProductExistenceResult> CheckExistenceAsync(IEnumerable<Guid> productIds, CancellationToken cancellationToken = default);
     }
 }

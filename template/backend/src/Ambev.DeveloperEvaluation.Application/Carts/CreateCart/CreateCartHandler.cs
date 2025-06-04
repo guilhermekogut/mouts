@@ -13,12 +13,14 @@ namespace Ambev.DeveloperEvaluation.Application.Carts.CreateCart
     public class CreateCartHandler : IRequestHandler<CreateCartCommand, CreateCartResult>
     {
         private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public CreateCartHandler(ICartRepository cartRepository, IMapper mapper)
+        public CreateCartHandler(ICartRepository cartRepository, IMapper mapper, IProductRepository productRepository)
         {
             _cartRepository = cartRepository;
             _mapper = mapper;
+            _productRepository = productRepository;
         }
 
         public async Task<CreateCartResult> Handle(CreateCartCommand request, CancellationToken cancellationToken)
@@ -28,6 +30,13 @@ namespace Ambev.DeveloperEvaluation.Application.Carts.CreateCart
             if (existingCart != null)
                 throw new InvalidOperationException("User already has an active cart.");
 
+            var productIds = request.Products.Select(p => p.ProductId).Distinct().ToArray();
+            var existenceResult = await _productRepository.CheckExistenceAsync(productIds, cancellationToken);
+            if (!existenceResult.AllExist)
+            {
+                var notFoundIds = existenceResult.Items.Where(x => !x.Exists).Select(x => x.ProductId);
+                throw new InvalidOperationException($"The following product IDs do not exist: {string.Join(", ", notFoundIds)}");
+            }
             // Business rule validation (quantity per item)
             foreach (var item in request.Products)
             {

@@ -19,6 +19,16 @@ public static class CreateCartHandlerTestData
         .RuleFor(c => c.UserId, f => f.Random.Guid())
         .RuleFor(c => c.Products, f => ProductFaker.Generate(f.Random.Int(1, 3)));
 
+    /// <summary>
+    /// Generates a command with at least one invalid product ID (not existing in the system).
+    /// </summary>
+    public static CreateCartCommand GenerateCommandWithInvalidProductId(Guid? invalidProductId = null)
+    {
+        var command = GenerateValidCommand();
+        command.Products[0].ProductId = invalidProductId ?? Guid.NewGuid();
+        return command;
+    }
+
     public static CreateCartCommand GenerateValidCommand() => CommandFaker.Generate();
 
     public static CreateCartCommand GenerateCommandWithInvalidQuantity()
