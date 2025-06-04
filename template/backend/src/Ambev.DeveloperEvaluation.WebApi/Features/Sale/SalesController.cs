@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
 
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
+using Ambev.DeveloperEvaluation.Application.Sales.GetSale;
 using Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CancelSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CreateSale;
+using Ambev.DeveloperEvaluation.WebApi.Features.Sale.GetSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.UpdateSale;
 
 using AutoMapper;
@@ -205,6 +207,46 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sale
                     Success = false,
                     Message = ex.Message
                 });
+            }
+        }
+
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ApiResponseWithData<GetSaleResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetSale([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            var request = new GetSaleRequest { Id = id };
+            var validator = new GetSaleRequestValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var command = _mapper.Map<GetSaleCommand>(request.Id);
+            try
+            {
+                var response = await _mediator.Send(command, cancellationToken);
+                return Ok(new ApiResponseWithData<GetSaleResponse>
+                {
+                    Success = true,
+                    Message = "Sale retrieved successfully",
+                    Data = _mapper.Map<GetSaleResponse>(response)
+                });
+            }
+            catch (InvalidOperationException e)
+            {
+                return NotFound(new ApiResponse
+                {
+                    Success = false,
+                    Message = e.Message,
+                    Errors = []
+                });
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
