@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
 
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
+using Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CreateSale;
+using Ambev.DeveloperEvaluation.WebApi.Features.Sale.UpdateSale;
 
 using AutoMapper;
 
@@ -80,5 +82,69 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sale
                 });
             }
         }
+
+
+        [HttpPut("{saleId}/items/{productId}/cancel")]
+        [ProducesResponseType(typeof(ApiResponseWithData<UpdateSaleResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateSale([FromRoute] Guid saleId, [FromRoute] Guid productId, CancellationToken cancellationToken)
+        {
+            var request = new UpdateSaleRequest
+            {
+                SaleId = saleId,
+                ProductId = productId
+            };
+
+            var validator = new UpdateSaleRequestValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var authenticatedUserId))
+            {
+                return Unauthorized(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Authenticated user not found."
+                });
+            }
+
+            var command = _mapper.Map<UpdateSaleCommand>(request);
+            command.AuthenticatedUserId = authenticatedUserId;
+
+            try
+            {
+                var result = await _mediator.Send(command, cancellationToken);
+                var response = _mapper.Map<UpdateSaleResponse>(result);
+
+                return Ok(new ApiResponseWithData<UpdateSaleResponse>
+                {
+                    Success = true,
+                    Message = "Sale item cancelled successfully",
+                    Data = response
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new ApiResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new ApiResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
     }
 }
