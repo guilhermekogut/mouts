@@ -1,11 +1,13 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Carts.CreateCart;
 using Ambev.DeveloperEvaluation.Application.Carts.DeleteCart;
 using Ambev.DeveloperEvaluation.Application.Carts.GetCart;
+using Ambev.DeveloperEvaluation.Application.Carts.ListCarts;
 using Ambev.DeveloperEvaluation.Application.Carts.UpdateCart;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.CreateCart;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.DeleteCart;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.GetCart;
+using Ambev.DeveloperEvaluation.WebApi.Features.Carts.ListCarts;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.UpdateCart;
 
 using AutoMapper;
@@ -161,5 +163,30 @@ public class CartsController : ControllerBase
         {
             throw;
         }
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResponse<ListCartsItemResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListCarts([FromQuery] ListCartsRequest request, CancellationToken cancellationToken)
+    {
+        var validator = new ListCartsRequestValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        var query = _mapper.Map<ListCartsCommand>(request);
+        var result = await _mediator.Send(query, cancellationToken);
+        var response = _mapper.Map<ListCartsResponse>(result);
+
+        return Ok(new PaginatedResponse<ListCartsItemResponse>
+        {
+            Data = response.Data,
+            TotalCount = response.TotalItems,
+            CurrentPage = response.CurrentPage,
+            TotalPages = response.TotalPages,
+            Success = true,
+            Message = "Carts listed successfully"
+        });
     }
 }
