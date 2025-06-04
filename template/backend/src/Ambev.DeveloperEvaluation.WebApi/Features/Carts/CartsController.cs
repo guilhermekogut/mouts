@@ -1,6 +1,8 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Carts.CreateCart;
+using Ambev.DeveloperEvaluation.Application.Carts.UpdateCart;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Carts.CreateCart;
+using Ambev.DeveloperEvaluation.WebApi.Features.Carts.UpdateCart;
 
 using AutoMapper;
 
@@ -47,6 +49,40 @@ public class CartsController : ControllerBase
                 Success = true,
                 Message = "Cart created successfully",
                 Data = _mapper.Map<CreateCartResponse>(response)
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new ApiResponse
+            {
+                Success = false,
+                Message = ex.Message
+            });
+        }
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(ApiResponseWithData<UpdateCartResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateCart([FromRoute] Guid id, [FromBody] UpdateCartRequest request, CancellationToken cancellationToken)
+    {
+        var validator = new UpdateCartRequestValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        try
+        {
+            var command = _mapper.Map<UpdateCartCommand>(request);
+            command.Id = id;
+            var response = await _mediator.Send(command, cancellationToken);
+
+            return Ok(new ApiResponseWithData<UpdateCartResponse>
+            {
+                Success = true,
+                Message = "Cart updated successfully",
+                Data = _mapper.Map<UpdateCartResponse>(response)
             });
         }
         catch (InvalidOperationException ex)
