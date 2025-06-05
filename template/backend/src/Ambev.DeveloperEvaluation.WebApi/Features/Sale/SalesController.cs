@@ -2,11 +2,13 @@
 
 using Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 using Ambev.DeveloperEvaluation.Application.Sales.GetSale;
+using Ambev.DeveloperEvaluation.Application.Sales.ListSales;
 using Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CancelSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.CreateSale;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.GetSale;
+using Ambev.DeveloperEvaluation.WebApi.Features.Sale.ListSales;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sale.UpdateSale;
 
 using AutoMapper;
@@ -248,6 +250,31 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Sale
             {
                 throw;
             }
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PaginatedResponse<ListSalesItemResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ListSales([FromQuery] ListSalesRequest request, CancellationToken cancellationToken)
+        {
+            var validator = new ListSalesRequestValidator();
+            var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var query = _mapper.Map<ListSalesCommand>(request);
+            var result = await _mediator.Send(query, cancellationToken);
+            var response = _mapper.Map<ListSalesResponse>(result);
+
+            return Ok(new PaginatedResponse<ListSalesItemResponse>
+            {
+                Data = response.Data,
+                TotalCount = response.TotalItems,
+                CurrentPage = response.CurrentPage,
+                TotalPages = response.TotalPages,
+                Success = true,
+                Message = "Sales listed successfully"
+            });
         }
 
     }
