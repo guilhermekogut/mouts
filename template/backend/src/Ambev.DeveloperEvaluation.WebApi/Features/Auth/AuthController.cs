@@ -1,9 +1,12 @@
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
+using Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.WebApi.Features.Auth.AuthenticateUserFeature;
-using Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
+
+using AutoMapper;
+
+using MediatR;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Auth;
 
@@ -46,14 +49,26 @@ public class AuthController : BaseController
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        var command = _mapper.Map<AuthenticateUserCommand>(request);
-        var response = await _mediator.Send(command, cancellationToken);
-
-        return Ok(new ApiResponseWithData<AuthenticateUserResponse>
+        try
         {
-            Success = true,
-            Message = "User authenticated successfully",
-            Data = _mapper.Map<AuthenticateUserResponse>(response)
-        });
+            var command = _mapper.Map<AuthenticateUserCommand>(request);
+            var response = await _mediator.Send(command, cancellationToken);
+
+            return Ok(new ApiResponseWithData<AuthenticateUserResponse>
+            {
+                Success = true,
+                Message = "User authenticated successfully",
+                Data = _mapper.Map<AuthenticateUserResponse>(response)
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new ApiResponse
+            {
+                Success = false,
+                Message = ex.Message
+            });
+        }
+
     }
 }
