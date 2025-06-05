@@ -107,6 +107,8 @@ public class CreateCartHandlerTests
             Arg.Any<CancellationToken>())
             .Returns(new ProductExistenceResult(existenceItems));
 
+        var cart = CreateCartHandlerTestData.GenerateCartFromCommand(command);
+        _mapper.Map<Cart>(command).Returns(cart);
         // When
         var act = () => _handler.Handle(command, CancellationToken.None);
 
